@@ -1,10 +1,10 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="com.jam.spacejam" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:gap="http://phonegap.com/ns/1.0">
-    <name>spaceJAMv2</name>
+    <name>spaceJAM</name>
     <description>
         Juego realizado para las prácticas de un curso MOOC de miriadaX
     </description>
-    <author email="jamartinez@hotmail.com" href="">
+    <author email="joemarpa@hotmail.com" href="">
         PhoneGap Team
     </author>
     <content src="index.html" />
