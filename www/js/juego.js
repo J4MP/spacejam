@@ -251,6 +251,9 @@ var app={
     app.marcador.nivel.text = app.nivel;
     app.marcador.galaxia.text = 'GALAXIA ' + app.nivel;
     app.marcador.galaxia.alpha=1;
+    app.escudoOperativo = true;
+    app.marcador.escudoOff.alpha=0;
+    app.marcador.escudoOn.alpha=1;
     app.mostrarMarcador();
     app.sonido('despegue');
     ovni.animations.play('fly', 20, true);
