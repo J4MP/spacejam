@@ -502,7 +502,7 @@ var app={
         game.physics.arcade.enable(app.meteoritos[app.meteoritos.length-1].objeto);
         game.world.bringToTop(ovni);
       }
-    },3000);
+    },3000*app.nivel);
   },
 
   inicioX: function(){
