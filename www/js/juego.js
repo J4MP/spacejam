@@ -17,6 +17,8 @@ var app={
   meteoritos: [],
   disparos: [],
   satelite: null,
+  escudoOperativo: true,
+  escudo: null,
   inicio: function(){
     dificultad = 0;
     velocidadX = 0;
@@ -77,6 +79,9 @@ var app={
     app.marcador.nameMini = game.add.sprite(10, 10, 'nave');
     app.marcador.meteoritoMini = game.add.sprite(2*game.world.width/6, 10, 'meteorito');
     app.marcador.lluviaMini = game.add.sprite(game.world.width - 75, 2, 'lluvia');
+    app.marcador.escudoOn = game.add.sprite(2*game.world.width/6 - 26, 10, 'escudoOn');
+    app.marcador.escudoOff = game.add.sprite(2*game.world.width/6 - 26, 10, 'escudoOff');
+    app.marcador.escudoOff.alpha = 0;
     app.marcador.fondo.alpha = 0.5;
     app.marcador.nameMini.scale.x = 0.4;
     app.marcador.nameMini.scale.y = 0.4;
@@ -110,6 +115,9 @@ var app={
       game.load.image('nave', 'assets/nave.png');
       game.load.image('meteorito', 'assets/meteorito.png');
       game.load.image('lluvia', 'assets/lluvia.png');
+      game.load.image('escudo', 'assets/escudo.png');
+      game.load.image('escudoOn', 'assets/escudoOn.png');
+      game.load.image('escudoOff', 'assets/escudoOff.png');
 
 
       game.load.spritesheet('ovni', 'assets/naves.png', 62.5, 60, 16);
@@ -160,6 +168,7 @@ var app={
 
       ovni.body.collideWorldBounds = true;
 
+
     }
 
     function update(){
@@ -197,6 +206,8 @@ var app={
                   }
                     meteorito.objeto.destroy();
                     app.meteoritos.splice(indice, 1);
+                } else if (app.escudo) {
+                  game.physics.arcade.overlap(app.escudo, app.meteoritos[indice].objeto, () => app.colisionEscudo(indice), null, this);
                 } else if (app.jugador.volando) {
                   game.physics.arcade.overlap(ovni, app.meteoritos[indice].objeto, () => app.colision(indice), null, this);
                 }
@@ -220,8 +231,15 @@ var app={
         } else {
           app.marcador.galaxia.alpha = 0;
         }
+
+        if (app.escudo) {
+            app.escudo.position.x = ovni.position.x-20;
+            app.escudo.position.y = ovni.position.y-20;
+            game.world.bringToTop(app.escudo);
+        }
     }
 
+    app.iniciaHammer();
     var estados = { preload: preload, create: create, update: update };
     game = new Phaser.Game(ancho, alto, Phaser.AUTO, 'phaser',estados);
   },
@@ -319,6 +337,12 @@ var app={
       app.marcador[obj].visible = true;
     }
 
+  },
+
+  colisionEscudo: function(indice) {
+    app.sonido('explosion');
+    app.meteoritos[indice].objeto.destroy();
+    app.meteoritos.splice(indice, 1);
   },
 
   colision: function(indice) {
@@ -500,7 +524,7 @@ var app={
         app.meteoritos[app.meteoritos.length-1].objeto.scale.x = app.meteoritos[app.meteoritos.length-1].escala;
         app.meteoritos[app.meteoritos.length-1].objeto.scale.y = app.meteoritos[app.meteoritos.length-1].escala;
         game.physics.arcade.enable(app.meteoritos[app.meteoritos.length-1].objeto);
-        game.world.bringToTop(ovni);
+        game.world.bringToTop(ovni);        
       }
     },3000*app.nivel);
   },
@@ -552,7 +576,43 @@ var app={
     velocidadY = datosAceleracion.y;
     velocidadX = datosAceleracion.x ;
     
-  }
+  },
+
+  ponerEscudo: function() {
+      if (app.escudoOperativo && !app.escudo) {
+        app.escudo =  game.add.sprite(ovni.position.x-20, ovni.position.y-20, 'escudo');
+        game.physics.arcade.enable(app.escudo);   
+      }
+      setTimeout(app.quitarEscudo, 10000);
+  },
+
+  quitarEscudo: function() {
+    app.escudo.destroy();
+    app.escudo=null;
+    app.escudoOperativo = false;
+    app.marcador.escudoOn.alpha= 0;
+    app.marcador.escudoOff.alpha=1;
+    setTimeout(app.escudoDisponible, 60000);
+  },
+
+  escudoDisponible: function() {
+    app.escudoOperativo = true;
+    app.marcador.escudoOn.alpha= 1;
+    app.marcador.escudoOff.alpha=0;
+  },
+
+    iniciaHammer: function() {
+    var zona = document.getElementById('phaser');
+    var hammertime = new Hammer(zona);
+    
+    hammertime.get('rotate').set({ enable: true });
+
+    hammertime.on('rotate', function(ev) {
+      if (ev.distance > 25) {
+        app.ponerEscudo(); 
+      }
+    });
+  },
 
 };
 
